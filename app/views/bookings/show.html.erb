@@ -1,0 +1,16 @@
+<!-- app/views/bookings/show.html.erb -->
+
+<h1>Booking Details</h1>
+
+<p>
+  <strong>Flight:</strong> <%= @booking.flight.departure_airport.code %> to <%= @booking.flight.arrival_airport.code %><br>
+  <strong>Departure Time:</strong> <%= @booking.flight.start_datetime.strftime("%B %d, %Y %H:%M") %><br>
+  <strong>Duration:</strong> <%= @booking.flight.duration %> minutes
+</p>
+
+<h2>Passengers</h2>
+<ul>
+  <% @booking.passengers.each do |passenger| %>
+    <li><%= passenger.name %> (<%= passenger.email %>)</li>
+  <% end %>
+</ul>

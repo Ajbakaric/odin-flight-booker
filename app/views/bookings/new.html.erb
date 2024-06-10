@@ -1,0 +1,29 @@
+<!-- app/views/bookings/new.html.erb -->
+
+<h1>Book Flight</h1>
+
+<p>
+  <strong>Flight:</strong> <%= @booking.flight.departure_airport.code %> to <%= @booking.flight.arrival_airport.code %><br>
+  <strong>Departure Time:</strong> <%= @booking.flight.start_datetime.strftime("%B %d, %Y %H:%M") %><br>
+  <strong>Duration:</strong> <%= @booking.flight.duration %> minutes
+</p>
+
+<%= form_with(model: @booking, local: true) do |form| %>
+  <%= form.hidden_field :flight_id %>
+
+  <h2>Passengers</h2>
+  <%= form.fields_for :passengers do |passenger_form| %>
+    <div>
+      <%= passenger_form.label :name %>
+      <%= passenger_form.text_field :name %>
+    </div>
+    <div>
+      <%= passenger_form.label :email %>
+      <%= passenger_form.email_field :email %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.submit "Book Flight" %>
+  </div>
+<% end %>
