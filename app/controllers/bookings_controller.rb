@@ -1,28 +1,26 @@
-# app/controllers/bookings_controller.rb
-
 class BookingsController < ApplicationController
   def new
     @flight = Flight.find(params[:flight_id])
     @booking = Booking.new(flight: @flight)
     @booking.passengers.build
   end
-
+  
   def create
     @booking = Booking.new(booking_params)
+    passenger_attributes = booking_params[:passengers_attributes].values.first
+    if passenger_attributes
+      @booking.passengers.build(passenger_attributes)
+    end
+  
     if @booking.save
-      redirect_to @booking, notice: 'Booking was successfully created.'
+      # Send confirmation email
+      PassengerMailer.confirmation_email(@booking.passengers.first, @booking.ticket).deliver_now if @booking.passengers.present?
+      redirect_to @booking, notice: 'Flight booking created successfully.'
     else
       render :new
     end
   end
-
-  def show
-    @booking = Booking.find_by(id: params[:id])
-    unless @booking
-      flash[:alert] = "Booking not found"
-      redirect_to root_path
-    end
-  end
+  
 
   private
 
