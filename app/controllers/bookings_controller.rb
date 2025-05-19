@@ -4,23 +4,34 @@ class BookingsController < ApplicationController
     @booking = Booking.new(flight: @flight)
     @booking.passengers.build
   end
-  
+
   def create
-    @booking = Booking.new(booking_params)
+  @booking = Booking.new(booking_params)
+
+  # Safely handle the case where passengers_attributes is nil
+  if booking_params[:passengers_attributes].present?
     passenger_attributes = booking_params[:passengers_attributes].values.first
-    if passenger_attributes
-      @booking.passengers.build(passenger_attributes)
+    @booking.passengers.build(passenger_attributes) if passenger_attributes
+  end
+
+  if @booking.save
+    # Send confirmation email
+    if @booking.passengers.present?
+      PassengerMailer.confirmation_email(@booking.passengers.first, @booking.ticket).deliver_now
     end
-  
-    if @booking.save
-      # Send confirmation email
-      PassengerMailer.confirmation_email(@booking.passengers.first, @booking.ticket).deliver_now if @booking.passengers.present?
-      redirect_to @booking, notice: 'Flight booking created successfully.'
-    else
-      render :new
+    redirect_to @booking, notice: 'Flight booking created successfully.'
+  else
+    render :new
+  end
+end
+
+
+  def show
+    @booking = Booking.find_by(id: params[:id])
+    if @booking.nil? || @booking.flight.nil?
+      redirect_to root_path, alert: "Booking not found or flight missing."
     end
   end
-  
 
   private
 
